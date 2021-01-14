@@ -4,3 +4,5 @@ marshmallow
 apispec
 flask-restful
 decorator
+flask-restplus
+Flask-SQLAlchemy
