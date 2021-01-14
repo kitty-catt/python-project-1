@@ -4,3 +4,4 @@ marshmallow
 apispec
 flask-restful
 decorator
+server
