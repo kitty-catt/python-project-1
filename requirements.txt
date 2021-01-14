@@ -1,4 +1,5 @@
 flasgger
+flask
 marshmallow
 apispec
 flask-restful
