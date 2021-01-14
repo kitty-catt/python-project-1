@@ -1,54 +1,48 @@
-from flask import Flask, redirect
+from flask import Flask, jsonify
 from flasgger import Swagger
-from server import app
-from server.routes.prometheus import track_requests
 
-# The python-flask stack includes the flask extension flasgger, which will build
-# and publish your swagger ui and specification at the /apidocs url. Here we set up
-# the basic swagger attributes, which you should modify to match you application.
-# See: https://github.com/rochacbruno-archive/flasgger
-swagger_template = {
-  "swagger": "2.0",
-  "info": {
-    "title": "Example API for python-flask stack",
-    "description": "API for helloworld, plus health/monitoring",
-    "contact": {
-      "responsibleOrganization": "IBM",
-      "responsibleDeveloper": "Henry Nash",
-      "email": "henry.nash@uk.ibm.com",
-      "url": "https://appsody.dev",
-    },
-    "version": "0.2"
-  },
-  "schemes": [
-    "http"
-  ],
-}
-swagger = Swagger(app, template=swagger_template)
+app = Flask(__name__)
+swagger = Swagger(app)
 
-# The python-flask stack includes the prometheus metrics engine. You can ensure your endpoints
-# are included in these metrics by enclosing them in the @track_requests wrapper.
-@app.route('/hello')
-@track_requests
-def HelloWorld():
-    # To include an endpoint in the swagger ui and specification, we include a docstring that
-    # defines the attributes of this endpoint.
-    """A hello message
-    Example endpoint returning a hello message
+@app.route('/colors/<palette>/')
+def colors(palette):
+    """Example endpoint returning a list of colors by palette
+    This is using docstrings for specifications.
     ---
+    parameters:
+      - name: palette
+        in: path
+        type: string
+        enum: ['all', 'rgb', 'cmyk']
+        required: true
+        default: all
+    definitions:
+      Palette:
+        type: object
+        properties:
+          palette_name:
+            type: array
+            items:
+              $ref: '#/definitions/Color'
+      Color:
+        type: string
     responses:
       200:
-        description: A successful reply
+        description: A list of colors (may be filtered by palette)
+        schema:
+          $ref: '#/definitions/Palette'
         examples:
-          text/plain: Hello from Appsody!
+          rgb: ['red', 'green', 'blue']
     """
-    return 'Hello from Appsody!'
+    all_colors = {
+        'cmyk': ['cian', 'magenta', 'yellow', 'black'],
+        'rgb': ['red', 'green', 'blue']
+    }
+    if palette == 'all':
+        result = all_colors
+    else:
+        result = {palette: all_colors.get(palette)}
 
-# It is considered bad form to return an error for '/', so let's redirect to the apidocs
-@app.route('/')
-def index():
-    return redirect('/apidocs')
+    return jsonify(result)
 
-# If you have additional modules that contain your API endpoints, for instance
-# using Blueprints, then ensure that you use relative imports, e.g.:
-# from .mymodule import myblueprint
+app.run(debug=True)
