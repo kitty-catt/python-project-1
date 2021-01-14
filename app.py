@@ -40,9 +40,9 @@ def HelloWorld():
       200:
         description: A successful reply
         examples:
-          text/plain: Hello from Appsody!
+          text/plain: Hello from TX team!
     """
-    return 'Hello from Appsody!'
+    return 'Hello from the TX team!'
 
 # It is considered bad form to return an error for '/', so let's redirect to the apidocs
 @app.route('/')
