@@ -1,54 +1,62 @@
-from flask import Flask, redirect
+import random
+from flask import Flask, jsonify, request
 from flasgger import Swagger
-from server import app
-from server.routes.prometheus import track_requests
 
-# The python-flask stack includes the flask extension flasgger, which will build
-# and publish your swagger ui and specification at the /apidocs url. Here we set up
-# the basic swagger attributes, which you should modify to match you application.
-# See: https://github.com/rochacbruno-archive/flasgger
-swagger_template = {
-  "swagger": "2.0",
-  "info": {
-    "title": "Example API for python-flask stack",
-    "description": "API for helloworld, plus health/monitoring",
-    "contact": {
-      "responsibleOrganization": "IBM",
-      "responsibleDeveloper": "Henry Nash",
-      "email": "henry.nash@uk.ibm.com",
-      "url": "https://appsody.dev",
-    },
-    "version": "0.2"
-  },
-  "schemes": [
-    "http"
-  ],
-}
-swagger = Swagger(app, template=swagger_template)
+app = Flask(__name__)
+Swagger(app)
 
-# The python-flask stack includes the prometheus metrics engine. You can ensure your endpoints
-# are included in these metrics by enclosing them in the @track_requests wrapper.
-@app.route('/hello')
-@track_requests
-def HelloWorld():
-    # To include an endpoint in the swagger ui and specification, we include a docstring that
-    # defines the attributes of this endpoint.
-    """A hello message
-    Example endpoint returning a hello message
-    ---
-    responses:
-      200:
-        description: A successful reply
-        examples:
-          text/plain: Hello from TX team!
+@app.route('/api/<string:language>/', methods=['GET'])
+def index(language):
     """
-    return 'Hello from the TX team!'
+    This is the language awesomeness API
+    Call this api passing a language name and get back its features
+    ---
+    tags:
+      - Awesomeness Language API
+    parameters:
+      - name: language
+        in: path
+        type: string
+        required: true
+        description: The language name
+      - name: size
+        in: query
+        type: integer
+        description: size of awesomeness
+    responses:
+      500:
+        description: Error The language is not awesome!
+      200:
+        description: A language with its awesomeness
+        schema:
+          id: awesome
+          properties:
+            language:
+              type: string
+              description: The language name
+              default: Lua
+            features:
+              type: array
+              description: The awesomeness list
+              items:
+                type: string
+              default: ["perfect", "simple", "lovely"]
 
-# It is considered bad form to return an error for '/', so let's redirect to the apidocs
-@app.route('/')
-def index():
-    return redirect('/apidocs')
+    """
 
-# If you have additional modules that contain your API endpoints, for instance
-# using Blueprints, then ensure that you use relative imports, e.g.:
-# from .mymodule import myblueprint
+    language = language.lower().strip()
+    features = [
+        "awesome", "great", "dynamic", 
+        "simple", "powerful", "amazing", 
+        "perfect", "beauty", "lovely"
+    ]
+    size = int(request.args.get('size', 1))
+    if language in ['php', 'vb', 'visualbasic', 'actionscript']:
+        return "An error occurred, invalid language for awesomeness", 500
+    return jsonify(
+        language=language,
+        features=random.sample(features, size)
+    )
+
+
+app.run(debug=True)
