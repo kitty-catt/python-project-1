@@ -48,7 +48,7 @@ def index(language):
     features = [
         "awesome", "great", "dynamic", 
         "simple", "powerful", "amazing", 
-        "perfect", "beauty", "lovely", "IBM RULES!"
+        "perfect", "beauty", "lovely", "IBM RULES AGAIN!"
     ]
     size = int(request.args.get('size', 1))
     if language in ['php', 'vb', 'visualbasic', 'actionscript']:
