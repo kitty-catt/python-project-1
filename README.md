@@ -15,3 +15,9 @@ oc policy add-role-to-user  edit system:serviceaccount:$ME-jenkins:jenkins  -n $
 - Login to Jenkins
 - Manage Jenkins > Configure System > OpenShift Jenkins Sync
 - Add the value for $ME-python-acc in the namespace field
+
+# Appendix A - deploy by hand
+
+oc new-app --name=python1 --as-deployment-config https://github.com/kitty-catt/python-project-1#v2
+oc expose svc python1
+
