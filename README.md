@@ -7,7 +7,11 @@ oc new-project $ME-jenkins
 oc new-app --as-deployment-config jenkins-ephemeral
 oc create -f build-config.yaml
 
-# Set up 
+# Set up dev namespace
+oc new-project $ME-python-dev
+oc policy add-role-to-user  edit system:serviceaccount:$ME-jenkins:jenkins  -n $ME-python-dev
+
+# Set up acc namespace
 oc new-project $ME-python-acc
 oc policy add-role-to-user  edit system:serviceaccount:$ME-jenkins:jenkins  -n $ME-python-acc
 
