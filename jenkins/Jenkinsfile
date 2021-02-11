@@ -50,6 +50,8 @@ pipeline {
                 echo '### Cleaning existing resources in DEV env ###'
                 sh '''
                         oc delete all -l testplan=apt-jmx -n ${DEV_PROJECT}
+                        pwd
+                        ls -l   
                     '''             
 
             }
