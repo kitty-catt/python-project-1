@@ -95,7 +95,7 @@ pipeline {
                     input message: "Promote to Staging?"
                 }
                 sh '''
-                        oc ${DEV_PROJECT}/${APP_NAME}:latest ${STAGE_PROJECT}/${APP_NAME}:stage
+                        oc tag ${DEV_PROJECT}/${APP_NAME}:latest ${STAGE_PROJECT}/${APP_NAME}:stage
                    '''                
             }
         }
