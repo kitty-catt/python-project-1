@@ -94,11 +94,9 @@ pipeline {
                 timeout(time: 60, unit: 'MINUTES') {
                     input message: "Promote to Staging?"
                 }
-                script {
-                    openshift.withCluster() {
-                    openshift.tag("${DEV_PROJECT}/${APP_NAME}:latest", "${STAGE_PROJECT}/${APP_NAME}:stage")
-                    }
-                }
+                sh '''
+                        oc ${DEV_PROJECT}/${APP_NAME}:latest ${STAGE_PROJECT}/${APP_NAME}:stage
+                   '''                
             }
         }
 
