@@ -24,10 +24,42 @@ pipeline {
         APP_NAME = "python1"
     }
 
+    triggers {
+      // Execute the pipeline once a day 
+      cron('H H * * *')
+    }
 
     stages {
 
+      stage("Pre-flight Check"){
+        steps{
+          echo '*** Pre-flight Check Starting ***'
+          script{
+            openshift.withCluster() {
 
+              //Check that the namespace exists.
+             try {
+                  openshift.selector("projects",DEV_PROJECT).exists()
+                  echo "Good! Project ${DEV_PROJECT} exist"
+              } catch (e) {
+                  error "Missing ${DEV_PROJECT} Project or RBAC policy to work with Project"
+              }
+             
+              // clean up all objects that were labelled with the 'testplan: apt-jmx' label, i.e. the Job that runs JMeter
+              try {
+                 if (openshift.selector("all", [ "testplan" : testPlanName ]).exists()) {
+                   openshift.selector("all", [ "testplan" : testPlanName ]).delete()
+                   echo "Good! Deleted old testplans resources" 
+                 }
+               } catch (e) {            
+                 echo "Good! No old testplans resources linger" 
+              }              
+
+            }
+          echo '*** Check Complete ***'
+          }
+        }
+      }
         stage('Launch new app in DEV env') {
             steps {
                 echo '### Cleaning existing resources in DEV env ###'
