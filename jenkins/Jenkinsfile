@@ -45,15 +45,12 @@ pipeline {
                   error "Missing ${DEV_PROJECT} Project or RBAC policy to work with Project"
               }
              
-              // clean up all objects that were labelled with the 'testplan: apt-jmx' label, i.e. the Job that runs JMeter
-              try {
-                 if (openshift.selector("all", [ "testplan" : testPlanName ]).exists()) {
-                   openshift.selector("all", [ "testplan" : testPlanName ]).delete()
-                   echo "Good! Deleted old testplans resources" 
-                 }
-               } catch (e) {            
-                 echo "Good! No old testplans resources linger" 
-              }              
+              // clean up all objects that were labelled with the 'testplan: apt-jmx' label 
+              // i.e. the Job that runs JMeter
+                echo '### Cleaning existing resources in DEV env ###'
+                sh '''
+                        oc delete all -l testplan=apt-jmx -n ${DEV_PROJECT}
+                    '''             
 
             }
           echo '*** Check Complete ***'
