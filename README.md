@@ -18,9 +18,22 @@ oc policy add-role-to-user registry-viewer $OCP_USER
 oc adm policy add-role-to-user registry-editor $OCP_USER
 cd jmeter-image
 docker build -t .
+
+# Push out to quay
 docker login -u kitty_catt quay.io
 docker tag jmeter-image quay.io/kitty_catt/jmeter-image
 docker push quay.io/kitty_catt/jmeter-image
+
+# Or push out to the openshift cluster (replace the application load balancer address):
+APLB="apps.eu45.prod.nextcle.com"
+docker login -u $(oc whoami) -p $(oc whoami -t) default-route-openshift-image-registry.$APLB
+docker tag jmeter-image default-route-openshift-image-registry.$APLB/$ME-python-dev/jmeter-image
+docker push default-route-openshift-image-registry.$APLB/$ME-python-dev/jmeter-image
+
+# Check
+$ oc get is
+NAME           IMAGE REPOSITORY                                                                                    TAGS     UPDATED
+jmeter-image   default-route-openshift-image-registry.apps.eu45.prod.nextcle.com/nl49827-python-dev/jmeter-image   latest   22 seconds ago
 
 # Set up acc namespace
 oc new-project $ME-python-acc
