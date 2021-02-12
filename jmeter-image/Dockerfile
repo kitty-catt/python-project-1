@@ -21,7 +21,8 @@ RUN mkdir -pv $JMETER_BASE/{tests,results} &&\
  tar -C $JMETER_BASE -xvf apache-jmeter-$VERSION.tgz  &&\
  rm -rf apache-jmeter-$VERSION.tgz  
 
-VOLUME ["$JMETER_BASE/tests", "$JMETER_BASE/results"]
+#VOLUME ["$JMETER_BASE/tests", "$JMETER_BASE/results"]
+VOLUME ["$JMETER_BASE/tests"]
 
 # Additional jars (for example jdbc or jms drivers) can be copied into $JMETER_HOME/lib
 COPY lib/* $JMETER_HOME/lib/

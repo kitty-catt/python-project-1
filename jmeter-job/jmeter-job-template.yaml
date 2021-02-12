@@ -55,9 +55,6 @@ objects:
             terminationMessagePolicy: File
           restartPolicy: OnFailure
           volumes:
-            - name: "results"
-              persistentVolumeClaim:
-                claimName: ${JTL_PVC}
             - name: "tests"
               persistentVolumeClaim:
                 claimName: ${JMX_PVC}
