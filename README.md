@@ -54,7 +54,8 @@
 
 # Start build
 
-For the moment by hand.
+The pipeline runs automatically once per day. The time and frequency is controlled in the Jenkinsfile.
+
 
 # Appendix A - deploy by hand
 
