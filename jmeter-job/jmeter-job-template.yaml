@@ -22,7 +22,7 @@ objects:
         spec:
           containers:
           - name: jmeter
-            image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/apt-jmeter:latest
+            image: jmeter-image:latest
             resources:
               requests:
               # commented out on Code Ready Containers 
