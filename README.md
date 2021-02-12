@@ -39,7 +39,7 @@
 
     $ oc get is
     NAME           IMAGE REPOSITORY                                                                                    TAGS     UPDATED
-    jmeter-image   default-route-openshift-image-registry.apps.eu45.prod.nextcle.com/nl49827-python-dev/jmeter-image   latest   22 seconds ago
+    jmeter-image   default-route-openshift-image-registry.apps.eu45.prod.nextcle.com/XXXX-python-dev/jmeter-image   latest   22 seconds ago
 
 # Set up acc namespace
 
