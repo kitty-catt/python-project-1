@@ -11,6 +11,17 @@ oc create -f build-config.yaml
 oc new-project $ME-python-dev
 oc policy add-role-to-user  edit system:serviceaccount:$ME-jenkins:jenkins  -n $ME-python-dev
 
+export OCP_USER=$(oc whoami)
+export OCP_TOKEN=$(oc whoami -t)
+
+oc policy add-role-to-user registry-viewer $OCP_USER
+oc adm policy add-role-to-user registry-editor $OCP_USER
+cd jmeter-image
+docker build -t .
+docker login -u kitty_catt quay.io
+docker tag jmeter-image quay.io/kitty_catt/jmeter-image
+docker push quay.io/kitty_catt/jmeter-image
+
 # Set up acc namespace
 oc new-project $ME-python-acc
 oc policy add-role-to-user  edit system:serviceaccount:$ME-jenkins:jenkins  -n $ME-python-acc
