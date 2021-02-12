@@ -21,6 +21,10 @@
     oc adm policy add-role-to-user registry-editor $OCP_USER
     cd jmeter-image
     docker build -t jmeter-image .
+    cd ..
+
+    # Make the initial configmap by hand, ... the pipeline will replace it.
+    oc create configmap apt-test --from-file=jmeter-tests   
 
 # Push out to quay
 
