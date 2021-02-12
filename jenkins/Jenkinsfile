@@ -50,10 +50,10 @@ pipeline {
                 echo '### Cleaning existing resources in DEV env ###'
                 sh '''
                         oc delete all -l testplan=apt-jmx -n ${DEV_PROJECT}
-                        oc delete cm apt-test 2> /dev/null
+                        oc delete configmap/apt-test 2> /dev/null
                         ls -l
                         sleep 5
-                        oc create cm apt-test --from-file=jmeter-tests   
+                        oc create configmap apt-test --from-file=jmeter-tests   
                     '''             
 
             }
