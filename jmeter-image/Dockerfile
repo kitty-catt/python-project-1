@@ -32,7 +32,7 @@ COPY lib/* $JMETER_HOME/lib/
 # Set working directory
 WORKDIR $JMETER_BASE
 
-#COPY scripts/run.sh $JMETER_BASE/run.sh
+COPY scripts/run.sh $JMETER_BASE/run.sh
 
 RUN chmod +x -R $JMETER_HOME
 
@@ -45,9 +45,5 @@ RUN chown -R 1001:0 $JMETER_BASE && \
 #1001 is the container user
 USER 1001
 
-# This will be executed in the Tekton step.
-#$JMETER_HOME/bin/jmeter.sh -n -t $WORKSPACE/bin/target.jmx -l $WORKSPACE/bin/report.jtl
-# which defaults to /opt/jmeter/apache-jmeter-5.3/bin
-
-#ENTRYPOINT $JMETER_BASE/run.sh
-ENTRYPOINT ["sleep", "120"]
+ENTRYPOINT $JMETER_BASE/run.sh
+#ENTRYPOINT ["sleep", "120"]
