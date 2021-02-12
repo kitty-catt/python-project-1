@@ -17,7 +17,7 @@ export OCP_TOKEN=$(oc whoami -t)
 oc policy add-role-to-user registry-viewer $OCP_USER
 oc adm policy add-role-to-user registry-editor $OCP_USER
 cd jmeter-image
-docker build -t .
+docker build -t jmeter-image .
 
 # Push out to quay
 docker login -u kitty_catt quay.io
