@@ -23,16 +23,7 @@
     docker build -t jmeter-image .
     cd ..
 
-    # Make the initial configmap by hand, ... the pipeline will replace it.
-    oc create configmap apt-test --from-file=jmeter-tests   
-
-# Push out to quay
-
-    docker login -u kitty_catt quay.io
-    docker tag jmeter-image quay.io/kitty_catt/jmeter-image
-    docker push quay.io/kitty_catt/jmeter-image
-
-# Or push out to the openshift cluster (replace the application load balancer address):
+# Push out to the openshift cluster (replace the application load balancer address):
 
     APLB="apps.eu45.prod.nextcle.com"
     docker login -u $(oc whoami) -p $(oc whoami -t) default-route-openshift-image-registry.$APLB
@@ -44,6 +35,15 @@
     $ oc get is
     NAME           IMAGE REPOSITORY                                                                                    TAGS     UPDATED
     jmeter-image   default-route-openshift-image-registry.apps.eu45.prod.nextcle.com/XXXX-python-dev/jmeter-image   latest   22 seconds ago
+
+# ConfigMap in dev namespace
+
+    # Make the initial configmap by hand, ... the pipeline will replace it.
+    oc create configmap apt-test --from-file=jmeter-tests   
+
+# Template in dev namespace
+
+TODO: mount configmap as volume.
 
 # Set up acc namespace
 
