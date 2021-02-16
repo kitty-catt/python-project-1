@@ -91,6 +91,17 @@ pipeline {
             }
         }
 
+        stage('Running JMeter Test DEV env') {
+            steps {
+                echo '### Cleaning existing resources in DEV env ###'
+                sh '''
+                        oc new-app apt-jmeter-job  -n ${DEV_PROJECT}
+                        sleep 15
+                        oc logs -f job/apt-jmeter
+                   '''
+            }
+        }        
+
         stage('Promote to Staging Env') {
             steps {
                 timeout(time: 60, unit: 'MINUTES') {
