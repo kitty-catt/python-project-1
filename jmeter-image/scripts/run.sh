@@ -24,15 +24,22 @@ ls -lrt $PLAN_DIR
 
 for TEST_FILE in $PLAN_DIR/*.jmx; do
     echo "IN: $TEST_FILE"
-    #RESULT_FILE=/opt/jmeter/results/${dir}/$(basename $TEST_FILE .jmx).jtl
     RESULT_FILE=/opt/jmeter/results/$(basename $TEST_FILE .jmx).jtl
     echo "OUT: $RESULT_FILE"
     $JMETER_HOME/bin/jmeter -n -t $TEST_FILE -l $RESULT_FILE $JMETER_PARAMS
 done
 
 echo "END RESULTS:"
-pwd
-ls -lrt /opt/jmeter/results/${dir}
+wc -l /opt/jmeter/results/*.jtl
+echo
+
+echo "ERRORS:"
+grep "false" /opt/jmeter/results/*.jtl
+echo
+
+echo "DETAILS:"
+cat /opt/jmeter/results/*.jtl
+echo
 
 # Call back the webhook step in Jenkins pipeline
 if [ -n "${CALLBACK_URL}" ]; then
