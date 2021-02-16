@@ -96,8 +96,7 @@ pipeline {
                 echo '### Cleaning existing resources in DEV env ###'
                 sh '''
                         oc new-app apt-jmeter-job  -n ${DEV_PROJECT}
-                        sleep 15
-                        oc logs -f job/apt-jmeter
+
                    '''
             }
         }        
