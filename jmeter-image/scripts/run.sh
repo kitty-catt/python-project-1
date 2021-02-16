@@ -10,7 +10,7 @@ A=$(find /opt/jmeter/tests -name "*.jmx")
 for FIL in $A; do echo "found jmx plan: $FIL"; done
 
 # Dateformat: %Y-%m-%d_%H:%M:%S
-dir=${RESULT_SUB_DIR:-$(date +"%F_%T")}
+#dir=${RESULT_SUB_DIR:-$(date +"%F_%T")}
 
 # Parse JMeter parameters, replaces the J_ in J_PARAM with -J -> -JPARAM
 for param in $(printenv | grep J_); do
@@ -24,12 +24,14 @@ ls -lrt $PLAN_DIR
 
 for TEST_FILE in $PLAN_DIR/*.jmx; do
     echo "IN: $TEST_FILE"
-    RESULT_FILE=/opt/jmeter/results/${dir}/$(basename $TEST_FILE .jmx).jtl
+    #RESULT_FILE=/opt/jmeter/results/${dir}/$(basename $TEST_FILE .jmx).jtl
+    RESULT_FILE=/opt/jmeter/results/$(basename $TEST_FILE .jmx).jtl
     echo "OUT: $RESULT_FILE"
     $JMETER_HOME/bin/jmeter -n -t $TEST_FILE -l $RESULT_FILE $JMETER_PARAMS
 done
 
 echo "END RESULTS:"
+pwd
 ls -lrt /opt/jmeter/results/${dir}
 
 # Call back the webhook step in Jenkins pipeline

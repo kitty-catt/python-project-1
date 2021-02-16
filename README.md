@@ -50,6 +50,7 @@
     oc apply -f jmeter-job/jmeter-job-template.yaml 
     oc new-app apt-jmeter-job
     oc logs -f job/apt-jmeter
+    oc delete job/apt-jmeter
 
 # Set up acc namespace
 
