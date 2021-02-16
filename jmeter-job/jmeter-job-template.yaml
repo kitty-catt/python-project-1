@@ -22,23 +22,13 @@ objects:
         spec:
           containers:
           - name: jmeter
-            image: jmeter-image:latest
+            image: quay.io/kitty_catt/jmeter-image:latest
             resources:
               requests:
               # commented out on Code Ready Containers 
               #  cpu: '500m'
               #  memory: 1Gi
             env:
-              - name: J_PAIN_TEMPLATE_LOCATION
-                value: /opt/jmeter/tests/pain_template.xml
-              - name: J_PAIN_CSV_LOCATION
-                value: /opt/jmeter/tests/pain_samples.csv
-              - name: J_sample_variables
-                value: "MSG_ID,JMS_TIMESTAMP"
-              - name: J_BROKER
-                value: messaging
-              - name: J_PORT
-                value: "5671"
               - name: RESULT_SUB_DIR
                 value: ${RESULT_SUB_DIR}
               - name: PLAN_SUB_DIR
@@ -48,26 +38,18 @@ objects:
             volumeMounts:
               - mountPath: /opt/jmeter/tests
                 name: tests
-              - mountPath: /opt/jmeter/results
-                name: results
             resources: {}
             terminationMessagePath: /dev/termination-log
             terminationMessagePolicy: File
           restartPolicy: OnFailure
           volumes:
             - name: "tests"
-              persistentVolumeClaim:
-                claimName: ${JMX_PVC}
+              configMap:
+                name: apt-test
 parameters:
   - description: Namespace/project the job is created in
     name: NAMESPACE
-    value: perftest
-  - description: Name of the persistent volume claim to use for storing the test(s) results
-    name: JTL_PVC
-    value: apt-jmeter
-  - description: Name of the persistent volume claim to use for finding JMX testplans
-    name: JMX_PVC
-    value: jenkins
+    value: nl49827-python-dev
   - description: Name of the subdirectory where test results are to be stored 
     name: RESULT_SUB_DIR
   - description: Name of the subdirectory where test plans have been downloaded by Jenkins

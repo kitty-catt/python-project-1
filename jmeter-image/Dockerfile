@@ -39,7 +39,9 @@ RUN chmod +x -R $JMETER_HOME
 
 RUN chown -R 1001:0 $JMETER_BASE && \
     chgrp -R 0 $JMETER_BASE && \
-    chmod -R g=u $JMETER_BASE
+    chmod -R g=u $JMETER_BASE && \
+    mkdir -pv $JMETER_BASE/results && \
+    chmod ug+x /opt/jmeter/run.sh
 
 #RUN yum install -y sleep
 

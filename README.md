@@ -25,10 +25,14 @@
 
 # Push out to the openshift cluster (replace the application load balancer address):
 
-    APLB="apps.eu45.prod.nextcle.com"
-    docker login -u $(oc whoami) -p $(oc whoami -t) default-route-openshift-image-registry.$APLB
-    docker tag jmeter-image default-route-openshift-image-registry.$APLB/$ME-python-dev/jmeter-image
-    docker push default-route-openshift-image-registry.$APLB/$ME-python-dev/jmeter-image
+    #APLB="apps.eu45.prod.nextcle.com"
+    #docker login -u $(oc whoami) -p $(oc whoami -t) default-route-openshift-image-registry.$APLB
+    #docker tag jmeter-image default-route-openshift-image-registry.$APLB/$ME-python-dev/jmeter-image
+    #docker push default-route-openshift-image-registry.$APLB/$ME-python-dev/jmeter-image
+
+    docker login quay.io
+    docker tag jmeter-image quay.io/kitty_catt/jmeter-image
+    docker push quay.io/kitty_catt/jmeter-image
 
 # Check
 
@@ -43,7 +47,9 @@
 
 # Template in dev namespace
 
-TODO: mount configmap as volume.
+    oc apply -f jmeter-job/jmeter-job-template.yaml 
+    oc new-app apt-jmeter-job
+    oc logs -f job/apt-jmeter
 
 # Set up acc namespace
 
