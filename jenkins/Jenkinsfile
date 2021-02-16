@@ -95,9 +95,8 @@ pipeline {
             steps {
                 echo '### Cleaning existing resources in DEV env ###'
                 sh '''
-                        sleep 30
                         oc delete job/apt-jmeter -n ${DEV_PROJECT}
-                        sleep 5
+                        sleep 120
                         oc new-app apt-jmeter-job  -n ${DEV_PROJECT}
 
                    '''
