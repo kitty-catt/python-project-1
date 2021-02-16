@@ -1,0 +1,155 @@
+
+def devProj    = "nl49827-python-dev"
+def svc_name   = "python-app"
+def testPlanName = 'apt-jmx'
+def pipelineName = 'a-pipeline'
+
+pipeline {
+    options {
+        // set a timeout of 60 minutes for this pipeline
+        timeout(time: 60, unit: 'MINUTES')
+    }
+    agent {
+      node {
+        label 'master'
+      }
+    }
+
+    environment {
+        DEV_PROJECT = "nl49827-python-dev"
+        STAGE_PROJECT = "nl49827-python-acc"
+        APP_GIT_URL = "https://github.com/kitty-catt/python-project-1"
+        APP_GIT_REF = "v2"
+        // DO NOT CHANGE THE GLOBAL VARS BELOW THIS LINE
+        APP_NAME = "python1"
+    }
+
+    triggers {
+      // Execute the pipeline once a day 
+      cron('H H * * *')
+    }
+
+    stages {
+
+      stage("Pre-flight Check"){
+        steps{
+          echo '*** Pre-flight Check Starting ***'
+          script{
+            openshift.withCluster() {
+
+              //Check that the namespace exists.
+             try {
+                  openshift.selector("projects",DEV_PROJECT).exists()
+                  echo "Good! Project ${DEV_PROJECT} exist"
+              } catch (e) {
+                  error "Missing ${DEV_PROJECT} Project or RBAC policy to work with Project"
+              }
+             
+              // clean up all objects that were labelled with the 'testplan: apt-jmx' label 
+              // i.e. the Job that runs JMeter
+                echo '### Cleaning existing resources in DEV env ###'
+                sh '''
+                        oc delete all -l testplan=apt-jmx -n ${DEV_PROJECT}
+                        oc delete configmap/apt-test -n ${DEV_PROJECT} 2> /dev/null
+                        ls -l
+                        sleep 5
+                        oc create configmap apt-test -n ${DEV_PROJECT} --from-file=jmeter-tests   
+                    '''             
+
+            }
+          echo '*** Check Complete ***'
+          }
+        }
+      }
+        stage('Launch new app in DEV env') {
+            steps {
+                echo '### Cleaning existing resources in DEV env ###'
+                sh '''
+                        oc delete all -l app=${APP_NAME} -n ${DEV_PROJECT}
+                        oc delete all -l build=${APP_NAME} -n ${DEV_PROJECT}
+                   '''
+
+                echo '### Creating a new app in DEV env ###'
+                sh '''
+                        oc new-app --name=python1 --as-deployment-config ${APP_GIT_URL}#${APP_GIT_REF} -n ${DEV_PROJECT}
+                        oc expose svc/${APP_NAME} -n ${DEV_PROJECT}
+                   '''
+            }
+        }
+
+        stage('Wait for deployment in DEV env') {
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject( "${DEV_PROJECT}" ) {
+                            openshift.selector("dc", "${APP_NAME}").related('pods').untilEach(1) {
+                                return (it.object().status.phase == "Running")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Running JMeter Test DEV env') {
+            steps {
+                echo '### Cleaning existing resources in DEV env ###'
+                sh '''
+                        oc logs -f bc/python1 -n ${DEV_PROJECT}
+                        oc delete job/apt-jmeter -n ${DEV_PROJECT}
+                        sleep 5
+                        oc new-app apt-jmeter-job  -n ${DEV_PROJECT}
+
+                   '''
+            }
+        }        
+
+        stage('Promote to Staging Env') {
+            steps {
+                timeout(time: 60, unit: 'MINUTES') {
+                    input message: "Promote to Staging?"
+                }
+                sh '''
+                        oc tag ${DEV_PROJECT}/${APP_NAME}:latest ${STAGE_PROJECT}/${APP_NAME}:stage
+                   '''                
+            }
+        }
+
+        stage('Deploy to Staging Env') {
+            steps {
+                echo '### Cleaning existing resources in Staging ###'
+                sh '''
+                        oc delete all -l app=${APP_NAME} -n ${STAGE_PROJECT}
+                        sleep 10
+                   '''
+
+                echo '### Creating a new app in Staging ###'
+                sh '''
+                        oc new-app  --as-deployment-config --name ${APP_NAME} -i ${APP_NAME}:stage -n ${STAGE_PROJECT}
+                        oc expose svc/${APP_NAME}
+                        sleep 10
+                   '''
+            }
+        }
+
+        stage('Wait for deployment in Staging') {
+            steps {
+                sh "oc get route ${APP_NAME} -n ${STAGE_PROJECT} -o jsonpath='{ .spec.host }' --loglevel=4 > routehost"
+
+                script {
+                    routeHost = readFile('routehost').trim()
+
+                    openshift.withCluster() {
+                        openshift.withProject( "${STAGE_PROJECT}" ) {
+                            def deployment = openshift.selector("dc", "${APP_NAME}").rollout()
+                            openshift.selector("dc", "${APP_NAME}").related('pods').untilEach(1) {
+                                return (it.object().status.phase == "Running")
+                            }
+                        }
+                        echo "Deployment to Staging env is complete. Access the API endpoint at the URL http://${routeHost}/apidocs"
+                    }
+                }
+            }
+        }
+    }
+}

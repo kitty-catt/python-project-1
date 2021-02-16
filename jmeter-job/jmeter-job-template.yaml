@@ -1,0 +1,58 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  labels:
+    app: apt-jmeter
+  name: apt-jmeter-job
+objects:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      labels:
+        app: apt-jmeter
+      name: apt-jmeter
+    spec:
+      parallelism: 1
+      completions: 1
+      template:
+        metadata:
+          name: apt-jmeter
+          labels:
+            testplan: apt-jmx
+        spec:
+          containers:
+          - name: jmeter
+            image: quay.io/kitty_catt/jmeter-image:latest
+            resources:
+              requests:
+              # commented out on Code Ready Containers 
+              #  cpu: '500m'
+              #  memory: 1Gi
+            env:
+              - name: RESULT_SUB_DIR
+                value: ${RESULT_SUB_DIR}
+              - name: PLAN_SUB_DIR
+                value: ${PLAN_SUB_DIR}
+              - name: CALLBACK_URL
+                value: ${CALLBACK_URL}
+            volumeMounts:
+              - mountPath: /opt/jmeter/tests
+                name: tests
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          restartPolicy: OnFailure
+          volumes:
+            - name: "tests"
+              configMap:
+                name: apt-test
+parameters:
+  - description: Namespace/project the job is created in
+    name: NAMESPACE
+    value: nl49827-python-dev
+  - description: Name of the subdirectory where test results are to be stored 
+    name: RESULT_SUB_DIR
+  - description: Name of the subdirectory where test plans have been downloaded by Jenkins
+    name: PLAN_SUB_DIR
+  - description: Url for notification of test completion 
+    name: CALLBACK_URL

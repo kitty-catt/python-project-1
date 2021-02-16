@@ -1,0 +1,13 @@
+kind: "BuildConfig"
+apiVersion: "build.openshift.io/v1"
+metadata:
+  name: "python-pipeline" 
+spec:
+  source:
+    contextDir: jenkins
+    git:
+      uri: "https://github.com/kitty-catt/python-project-1"
+      ref: "v2"
+  strategy:
+    jenkinsPipelineStrategy:
+      type: JenkinsPipeline
