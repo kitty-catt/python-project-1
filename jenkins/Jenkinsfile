@@ -97,7 +97,7 @@ pipeline {
                 sh '''
                         oc logs -f bc/python1
                         oc delete job/apt-jmeter -n ${DEV_PROJECT}
-                        sleep 120
+                        sleep 5
                         oc new-app apt-jmeter-job  -n ${DEV_PROJECT}
 
                    '''
