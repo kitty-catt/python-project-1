@@ -6,4 +6,4 @@ import os
 
 name =os.environ['MY_NAME']
 surname = os.environ['MY_SURNAME']
-print(f'{name} home directory is {surname}')
+print(f'{name} is a member of the {surname} family')
